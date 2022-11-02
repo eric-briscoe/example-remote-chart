@@ -3,10 +3,10 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExternalTemplateRemotesPlugin = require("external-remotes-plugin");
 const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
-const { LimitChunkCountPlugin } = require("webpack").optimize;
+const packageConfig = require('./package');
 
 module.exports = {
-  entry:  "./src/index",
+  entry: "./src/index",
   mode: "development",
   devtool: "source-map",
   optimization: {
@@ -22,6 +22,11 @@ module.exports = {
     publicPath: "auto",
     clean: true,
   },
+  externals: {
+    // Use external version of React
+    externals: { react: "react" },
+    externals: { "react-dom": "react-dom" },
+  },
   module: {
     rules: [
       {
@@ -33,6 +38,10 @@ module.exports = {
           plugins: [require.resolve("react-refresh/babel")],
         },
       },
+      {
+        test: /\.(css)$/,
+        use: ["style-loader", "css-loader"],
+      },
     ],
   },
   plugins: [
@@ -43,6 +52,16 @@ module.exports = {
         "./Button": "./src/Button",
         "./Heading": "./src/Heading",
         "./FunnelChart": "./src/FunnelChart",
+      },
+      shared: {
+        react: {
+          requiredVersion: packageConfig.dependencies.react,
+          singleton: true,
+        },
+        'react-dom': {
+          requiredVersion: packageConfig.dependencies['react-dom'],
+          singleton: true,
+        },
       },
     }),
     new ExternalTemplateRemotesPlugin(),
